@@ -1,0 +1,3 @@
+# don't submit persisted Eve api keys to github if they're in here!
+.eve_apis
+
