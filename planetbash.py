@@ -218,11 +218,10 @@ else:
                 expiryWhenString = '%s' % (timeToExpire)
                 expiryString = 'Time Until Expiry: '
             else:
-                print 'DATE is in the PAST'
                 expireDateLocal = '### EXPIRED ON %s ###' % (datetime.strftime(utc_to_local(expireDate),shortDateFormat))
                 expireDelta = datetime.now() - expireDate
                 timeSinceExpire = timedelta_to_string(expireDelta)
-                expiryWhenString = '%s ###==  EXPIRED ALREADY!  ==###' % (timeSinceExpire)
+                expiryWhenString = '%s --- EXPIRED!' % (timeSinceExpire)
                 expiryString = 'Time Since Expiry: '
 
         else:
