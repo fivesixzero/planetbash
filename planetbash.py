@@ -89,8 +89,6 @@ else:
     print ''
     exit(1)
 
-exit(0) # debug stop
-
 # Using "try" here because if this doesn't work, the rest of the script is gonna fail miserably.
 
 try:
