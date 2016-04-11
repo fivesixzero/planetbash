@@ -13,6 +13,7 @@ from datetime import timedelta
 from tzlocal import get_localzone
 import calendar
 import pytz
+import re
 
 local_tz = get_localzone()
 
@@ -63,6 +64,14 @@ if type(todo) == int:
     apiId = apiList[int(todo)][0]
     apiVerification = apiList[int(todo)][1]
     apiNickname = apiList[int(todo)][2]
+    if not (re.match('[0-9]{7}', apiId) and re.match('[0-9A-Za-z]{64}',apiVerification)):
+        apiOK = 'false'
+        print 'ERROR: API key nicknamed "%s" is bad! Please fix .eve_apis file and try again.' % (apiNickname)
+        print ''
+        print 'ID:           {%s}'% (apiId)
+        print 'Verification: {%s}' % (apiVerification)
+        print 'Nickname:     {%s}' % (apiNickname)
+        exit(1)
     print '==='
     print 'Using API Key for nickname [%s]' % (apiNickname)
     print '==='
@@ -76,6 +85,8 @@ else:
             print '%s) %s [ID: %s]' % (line,apiList[line][2],apiList[line][0])
     print ''
     exit(1)
+
+exit(0) # debug stop
 
 # Using "try" here because if this doesn't work, the rest of the script is gonna fail miserably.
 
