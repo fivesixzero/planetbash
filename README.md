@@ -13,7 +13,7 @@ Using API Key for nickname [account two]
 ===
 {11111111} Chracter Name1 (Corporation Name One) [Alliance One]
 --- Gal Ind Skill:      3
---- Upgrades Skill:     4
+--- Upgrades Skill:     5 - MAXED PLANETS
 --- Planet Count:       6 - MAXED PLANETS
 --- Planets Expire:     ### EXPIRED ON Wed, 04/06 ###
 --- Time Since Expiry:  2 days, 7 hours, 43 minutes --- EXPIRED!
