@@ -46,17 +46,19 @@ Make sure these guys are available via 'pip install'!
 
 To use this script all you've got to do is drop a few API keys (or a bunch of API kes) into a file named `.eve_apis` in the project root. The first line is ignored to allow for a proper `CSV` header.
 
+'''
 id,verification,nickname
 1234567,QVxblnXnr5FLWlWlkx4San0XMeHLygYz5zr6LhFcqyZ6LUakD5npFAhbd0glegPe,main account
 1234568,o3YhqmeQtbITAZLkhadVha76i9d2LgXJsIkzUY1vdzW1Seqy4gg3NGIhWRcNqDCh,industry alts
 1234569,MYhnV6RlzhzMA31L9iqi5rg6Zl3TBhuisdX1vR6pX6hgmbIeOTN7nVsfm7ukeV6Y,goon spy
 1234570,Up1c1rwGqqiKefeYBb5gliZmk7yfzVgAVdynqyJ6SGtVsOVgW9erOqFnQZorZoCV,boring highsec guy
+'''
 
-NOTE: The `.gitignore` file includes `.eve_apis` so this file will never be seen by git for commits!
+*NOTE: The `.gitignore` file includes `.eve_apis` so this file will never be seen by git for commits!*
 
 #### Command Line Arguments
 
-If planetbash.py is run without any arguments, it'll display the following output:
+If planetbash.py is run without any arguments and proper a `.eve_apis` CSV file is present, it'll display the following output.
 
 ```
 $ ./planetbash.py
@@ -75,7 +77,7 @@ To run planetbash.py with the "goon spy" key above, run the following:
 $ ./planetbash.py 3
 ```
 
-#### Running `planetbash.py` for all of your characters!
+#### Running `planetbash.py` for all of your characters
 
 To run the script on all of the keys simply wrap it in a for loop:
 
@@ -91,11 +93,15 @@ A: I've never built anything new in Python before! So I'm learning. If you have 
 
 Q: Why a shell script?
 
-A: Well, I've also never done anything with the EVE API (or any API) before, so this seemed like a good place to start. Ideally I'd like to have this info displayed in a web app but that'll take some time - I really wanted to whip up a proof of concept to get this moving quickly. And in tne end, this turned out to be pretty neat! I actually use it daily to keep track of my 12 Planetary Interaction alts. So it seemed like a good time to share.
+A: Well, I've also never done anything with the EVE API (or any API) before, so this seemed like a good place to start since I have a ton of experience with shell scripting at my day job.
+
+Q: Are you only making a shell script?
+
+A: I hope not! Ideally I'd like to have this info displayed in a web app but that'll take some time - I really wanted to whip up a proof of concept to get this moving quickly. And in tne end, this turned out to be pretty neat! I actually use it daily to keep track of my 12 Planetary Interaction alt characters. So it seemed like a good time to share.
 
 Q: These expiration times seem wonky. What gives?
 
-A: Since I'm new at Python I'm still learning to wrangle lists and juggle variables properly. As soon as I figure that out the extractor expiration times are going to be more accurate! Right now its just pulling the expiration date of the last extractor on the last planet because, well, that was good enough for me. But I don't like it and it'll be one of the first things I address.
+A: Since I'm new to Python I'm still learning to wrangle lists and juggle variables properly. As soon as I figure that out the extractor expiration times are going to be more accurate! Right now its just pulling the expiration date of the last extractor on the last planet because, well, that was good enough for me to make this proof of concept work. But I don't like it and it'll be one of the first things I address.
 
 Q: What's this "Pew" thing?
 
