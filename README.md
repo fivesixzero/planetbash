@@ -2,7 +2,7 @@
 
 Tired of losing track of your extractor timings? Don't want to click 10 times in existing character info apps to drill down to each character's PI info? This might be the tool for you! :D
 
-As the project name suggests, this script was intended to be launched with bash. It may work in a pure Windows environment but I haven't tested that.
+As the project name suggests, this script was intended to be launched within a bash CLI environment. It may work in a pure Windows environment but I haven't tested that.
 
 ### Output:
 
@@ -37,8 +37,8 @@ This was written for Python 2.7 so you'll need that installed.
 
 Make sure these guys are available via 'pip install'!
 
-DateTime (4.0.1)
-tzlocal (1.2.2)
+* DateTime (4.0.1)
+* tzlocal (1.2.2)
 
 ### Usage:
 

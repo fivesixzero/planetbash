@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# TODO [DONE 4/8]: Load API keys in external file (~/.eapi?)
+# TODO: Create capability for in-script "run through all in API" functionality
+#
 # TODO [long-term]: Add quick check for broken routes!
 # TODO [long-term]: Add "time to done" for factory planets
 
@@ -14,6 +15,8 @@ from tzlocal import get_localzone
 import calendar
 import pytz
 import re
+
+# assign our local TZ based on this system's local TZ at runtime.
 
 local_tz = get_localzone()
 
@@ -34,6 +37,13 @@ apiDateFormat = '%Y-%m-%d %H:%M:%S'
 localDateFormat = '%a, %b %d at %I:%M %p %Z'
 shortDateFormat = '%a, %m/%d'
 
+# Work out what to do based on our input arg and the CSV contents
+
+if len(sys.argv) > 1:
+    todo = int(sys.argv[1])
+else:
+    todo = 'nope'
+
 # Try to open the CSV file containing API keys.
 # If we fail, provide some details and an error.
 
@@ -43,7 +53,7 @@ except:
     print ''
     print 'CSV IMPORT FAILURE! Make sure .eve_apis exists here!'
     print ''
-    print 'CSV should be: keyid,verification,nickname'
+    print 'CSV format be: keyid,verification,nickname with a key on the first line'
     print ''
     raise
     exit(1)
@@ -53,13 +63,6 @@ except:
 apiList = list(csv.reader(apiCSV, delimiter=',', quotechar='\''))
 apiCSV.close()
 
-# Work out what to do based on our input arg and the CSV contents
-
-if len(sys.argv) > 1:
-    todo = int(sys.argv[1])
-else:
-    todo = 'nope'
-
 if type(todo) == int:
     apiId = apiList[int(todo)][0]
     apiVerification = apiList[int(todo)][1]
@@ -68,7 +71,7 @@ if type(todo) == int:
         apiOK = 'false'
         print 'ERROR: API key nicknamed "%s" is bad! Please fix .eve_apis file and try again.' % (apiNickname)
         print ''
-        print 'ID:           {%s}'% (apiId)
+        print 'ID:           {%s}' % (apiId)
         print 'Verification: {%s}' % (apiVerification)
         print 'Nickname:     {%s}' % (apiNickname)
         exit(1)
@@ -113,57 +116,33 @@ else:
         print '{%s} %s (%s) [%s]' % (c.characterID, c.name, c.corporationName, c.allianceName)
 
         # CharacterSheet data:
-        #
-        # 'DoB', 'bloodLine', 'bloodLineID', 'certificates', 'characterID', 'cloneJumpDate', 'cloneName', 'cloneSkillPoints', 'cloneTypeID', 'corporationID', 'corporationName', 'corporationRoles', 'corporationRolesAtBase', 'corporationRolesAtHQ', 'corporationRolesAtOther', 'corporationTitles', 'factionID', 'factionName', 'freeRespecs', 'freeSkillPoints', 'gender', 'homeStationID', 'implants', 'jumpActivation', 'jumpCloneImplants', 'jumpClones', 'jumpFatigue', 'jumpLastUpdate', 'lastRespecDate', 'lastTimedRespec', 'name', 'race', 'remoteStationDate', 'skills'
-        #
-        # Many of these end up as lists. IE, need "range(len(charSheet.skills))" to walk through skills.
-        #
 
         charSheet = pew.char_character_sheet(c.characterID)
 
-        dob = charSheet.DoB
-        bal = charSheet.balance
-        fsp = charSheet.freeSkillPoints
-        respecs = charSheet.freeRespecs
-
-        spTotal = 0
-        spNot5s = 0
-        spLvl5s = 0
-        skillsTotal = 0
-
         # SKILLS DATA:
         #
-        # 'level', 'published', 'skillpoints', 'typeID'
-        #
-        #
-        #
+        # For this script there are only three skills we really care about since
+        # they're arguably the only ones that affect Planetary Interaction
 
         for n in range(len(charSheet.skills)):
-#            skillsTotal += 1
-#            if charSheet.skills[n].level == 5:
-#                spLvl5s += 1
-#            else:
-#                spNot5s +=1
             spTotal += charSheet.skills[n].skillpoints
+            if charSheet.skills[n].typeID == 3340: # Gallente Industrial
+                galIndustrialSkill = charSheet.skills[n].level
             if charSheet.skills[n].typeID == 2495: # Interplanetary Consolodation
                 planetsSkill = charSheet.skills[n].level
             if charSheet.skills[n].typeID == 2505: # Command Center Upgrades
                 upgradesSkill = charSheet.skills[n].level
-            if charSheet.skills[n].typeID == 3340: # Gallente Industrial
-                galIndustrialSkill = charSheet.skills[n].level
 
         # PLANETS DATA:
         #
         # 'lastUpdate', 'numberOfPins', 'ownerID', 'ownerName', 'planetID', 'planetName', 'planetTypeID', 'planetTypeName', 'solarSystemID', 'solarSystemName', 'upgradeLevel'
         #
         ###
-        ### TODO -- More work with expire dates! Current state is dumb - only really grabs last one.
-        ### TODO -- Time math!!! Consider double-extract planets maybe.
-        ### TODO -- Find FIRST expiring planet to save to a var?
-        ### TODO -- Work through pins to find per-planet resources?
-        ### TODO -- Grab data from another API (eve-marketdata?) to determine per-planet revenues? (!)
+        ### TODO -- More work with expire dates! Grab then more intelligently.
+        ###         Current state is dumb - only really grabs last one.
         ### TODO -- Make use of shiny new pew function eve_type_name() to display what planet's working on
-        ### TODO -- Add details on what's on each planet, capacity, etc.
+        ### TODO -- Add details on what's on each planet, capacity, link status, etc.
+        ### TODO -- Grab data from another API (eve-marketdata?) to determine per-planet revenues? (!)
         ###
 
         planetsMax = int(planetsSkill) + 1
