@@ -123,7 +123,7 @@ else:
         # they're arguably the only ones that affect Planetary Interaction
 
         for n in range(len(charSheet.skills)):
-            spTotal += charSheet.skills[n].skillpoints
+#            spTotal += charSheet.skills[n].skillpoints
             if charSheet.skills[n].typeID == 3340: # Gallente Industrial
                 galIndustrialSkill = charSheet.skills[n].level
             if charSheet.skills[n].typeID == 2495: # Interplanetary Consolodation
@@ -222,8 +222,6 @@ else:
             print '********************************'
             print '***   PLANETS AVAILABLE: %s   ***' % (planetsMax - planetCount)
             print '********************************'
-        balInt = int(float(bal))
-
         print '--- Gal Ind Skill:      %s' % (galIndustrialSkill)
         print '--- Upgrades Skill:     %s %s' % (upgradesSkill,upgradesSkillString)
         print '--- Planet Count:       %s %s' % (planetCount,planetsSkillString)

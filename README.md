@@ -79,11 +79,13 @@ $ ./planetbash.py 3
 
 #### Running `planetbash.py` for all of your characters
 
-To run the script on all of the keys simply wrap it in a for loop:
+To run the script on all of the keys simply wrap it in a for loop with an awk to count how many API keys you've got in your `.eve_apis` file. Neat!
 
 ```
-for i in {1..4}; do ./planetbash.py; done
+for i in `awk 'BEGIN {count = 0} {if (count > 0) {printf("%s ",count)}; count = count + 1} {}' .eve_apis`; do ./planetbash.py $i; done
 ```
+
+*This kind of all-accounts automation will be implemented in a future version without the need to actually bash script around the Python script. But it'll be a bit. In the interim, this works great. :)*
 
 ### FAQ
 
