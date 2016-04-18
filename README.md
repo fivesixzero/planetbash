@@ -8,27 +8,15 @@ As the project name suggests, this script was intended to be launched within a b
 
 ```
 $ ./planetbash.py 4
-===
-Using API Key for nickname [account two]
-===
-{11111111} Chracter Name1 (Corporation Name One) [Alliance One]
---- Gal Ind Skill:      3
---- Upgrades Skill:     5 - MAXED PLANETS
---- Planet Count:       6 - MAXED PLANETS
---- Planets Expire:     ### EXPIRED ON Wed, 04/06 ###
---- Time Since Expiry:  2 days, 7 hours, 43 minutes --- EXPIRED!
-{11111111} Chracter Name2 (Corporation Name Two) [Alliance Two]
---- Gal Ind Skill:      3
---- Upgrades Skill:     4
---- Planet Count:       5
---- Planets Expire:     Fri, Apr 08 at 10:17 PM EDT
---- Time Until Expiry:  0 days, 1 hours, 17 minutes
-{11111111} Chracter Name3 (Corporation Name Three) [Alliance Three]
---- Gal Ind Skill:      2
---- Upgrades Skill:     4
---- Planet Count:       5
---- Planets Expire:     Fri, Apr 08 at 10:52 PM EDT
---- Time Until Expiry:  0 days, 1 hours, 52 minutes
+{12345678} Minmatar Citizen 19591231 (Corporaion Name Here) [Alliance Name Here]
+--- Next Expiration:    Wed, Apr 20 at 03:01 PM CDT
+--- Time Until Expiry:  2 days, 20 hours, 34 minutes
+{12345679} Amarr Citizen 75189232 (Corporaion Name Here) [Alliance Name Here]
+--- Next Expiration:    Wed, Apr 20 at 02:33 PM CDT
+--- Time Until Expiry:  2 days, 20 hours, 6 minutes
+{12345680} Gallente Citizen 859081023 (Corporaion Name Here) [Alliance Name Here]
+--- Next Expiration:    Wed, Apr 20 at 02:42 PM CDT
+--- Time Until Expiry:  2 days, 20 hours, 15 minutes
 ```
 
 ### Dependencies:
@@ -41,6 +29,10 @@ Make sure these guys are available via 'pip install'!
 * tzlocal (1.2.2)
 
 ### Usage:
+
+1. Create `.eve_apis` CSV file
+2. Run `./planetbash.py` at the CLI
+3. Observe the short and simple next-expiration outupt!
 
 #### `.eve_apis` CSV file
 
