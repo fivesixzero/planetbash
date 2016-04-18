@@ -239,11 +239,11 @@ else:
                 timeSinceExpire = timedelta_to_string(expireDelta)
                 expiryWhenString = '%s --- EXPIRED!' % (timeSinceExpire)
                 expiryString = 'Time Since Expiry: '
-
+        # END PLANET DATA LOOP
+        # This runs if the character has zero planets
         else:
-
-                expireDateLocal = '### None to Expire! ###'
-                expiryString = '[you really should set up some planets]'
+            expireDateLocal = '### None to Expire! ###'
+            expiryString = '[you really should set up some planets]'
 
  #       print '---'
         if planetCount < planetsMax:
