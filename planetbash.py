@@ -163,6 +163,11 @@ else:
 
         planetCount = len(p.colonies)
 
+        # initial vars for expireDate and lastPinExpireDate
+        #
+        expireDate = datetime.strptime("2300-01-01 00:00:00", apiDateFormat)
+        lastPinExpireDate = expireDate
+
         if planetCount > 0:
 
             for n in range(len(p.colonies)):
@@ -182,14 +187,37 @@ else:
 
                 for pin in range(len(pins.pins)):
 
-                    #debug
-                    # print "--- Planet: %s: PIN typeID: %s, EXPIRY: %s" % (p.colonies[n].planetName, pins.pins[pin].typeID, pins.pins[pin].expiryTime)
+                    commandTypes = [2254, 2524, 2525, 2533, 2534, 2549, 2550, 2551]
+                    launchpadTypes = [2256, 2542, 2543, 2544, 2552, 2555, 2556, 2557]
+                    extractorTypes = [2848, 3060, 3061, 3062, 3063, 3064, 3067, 3068]
+                    storageTypes = [2257, 2535, 2536, 2541, 2558, 2560, 2561, 2562]
+                    factoryTypes = [2469, 2471, 2473, 2481, 2483, 2490, 2492, 2493, 2470, 2472, 2474, 2480, 2484, 2485, 2491, 2494, 2475, 2482]
 
-                    if pins.pins[pin].expiryTime.startswith('0001'):
-                        nonExtractors += 1
+                    typeID = pins.pins[pin].typeID
+                    typeName = pins.pins[pin].typeName
+                    contentQuantity = pins.pins[pin].contentQuantity
+                    contentTypeName = pins.pins[pin].contentTypeID
+                    contentTypeName = pins.pins[pin].contentTypeName
+                    cycleTime = pins.pins[pin].cycleTime
+                    expiryTime = pins.pins[pin].expiryTime
+
+                    pinExpireDate = datetime.strptime(pins.pins[pin].expiryTime,apiDateFormat)
+
+                    if typeID in commandTypes:
+                        pinType = 'command'
+                    elif typeID in launchpadTypes:
+                        pinType = 'launchpad'
+                    elif typeID in extractorTypes:
+                        pinType = 'extractor'
+                        if (pinExpireDate <= lastPinExpireDate) and (expireDate <= lastPinExpireDate):
+                            expireDate = pinExpireDate
+                            lastPinExpireDate = pinExpireDate
+                    elif typeID in storageTypes:
+                        pinType = 'storage'
+                    elif typeID in factoryTypes:
+                        pinType = 'factory'
                     else:
-                        extractors += 1
-                        expireDate = datetime.strptime(pins.pins[pin].expiryTime,apiDateFormat)
+                        pinType = 'unknown'
 
                 planetName = p.colonies[n].planetName
                 planetTypeName = p.colonies[n].planetTypeName
