@@ -93,10 +93,6 @@ Q: Are you only making a shell script?
 
 A: I hope not! Ideally I'd like to have this info displayed in a web app but that'll take some time - I really wanted to whip up a proof of concept to get this moving quickly. And in tne end, this turned out to be pretty neat! I actually use it daily to keep track of my 12 Planetary Interaction alt characters. So it seemed like a good time to share.
 
-Q: These expiration times seem wonky. What gives?
-
-A: Since I'm new to Python I'm still learning to wrangle lists and juggle variables properly. As soon as I figure that out the extractor expiration times are going to be more accurate! Right now its just pulling the expiration date of the last extractor on the last planet because, well, that was good enough for me to make this proof of concept work. But I don't like it and it'll be one of the first things I address.
-
 Q: What's this "Pew" thing?
 
 A: Pew is an API wrapper originally developed by github user crsmithdev. I found it here on Github and liked the looks of it so I decided to fork it and start improving it. I've added that more up to date fork to this project and its good enough for the needs of this script. But it needs a lot more work! I'm only about 5% of the way through testing it out and I haven't done any work on the actual test script in there. So if you want to help, that'd be awesome.
