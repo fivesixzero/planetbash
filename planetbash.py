@@ -38,6 +38,7 @@ localDateFormat = '%a, %b %d at %I:%M %p %Z'
 shortDateFormat = '%a, %m/%d'
 
 # Work out what to do based on our input arg and the CSV contents
+# todo: add some command-line switches... more/less char detail, more/less planet deets
 
 if len(sys.argv) > 1:
     todo = int(sys.argv[1])
@@ -63,11 +64,12 @@ except:
 apiList = list(csv.reader(apiCSV, delimiter=',', quotechar='\''))
 apiCSV.close()
 
-if type(todo) == int:
-    apiId = apiList[int(todo)][0]
-    apiVerification = apiList[int(todo)][1]
-    apiNickname = apiList[int(todo)][2]
-    if not (re.match('[0-9]{7}', apiId) and re.match('[0-9A-Za-z]{64}',apiVerification)):
+# Check entire csv for sanity - we don't want to do anything unless we know the CSV is legit.
+for i in range(len(apiList)):
+    apiId = apiList[int(i)][0]
+    apiVerification = apiList[int(i)][1]
+    apiNickname = apiList[int(i)][2]
+    if (i > 0) and (not (re.match('[0-9]{7}', apiId) and re.match('[0-9A-Za-z]{64}',apiVerification))):
         apiOK = 'false'
         print 'ERROR: API key nicknamed "%s" is bad! Please fix .eve_apis file and try again.' % (apiNickname)
         print ''
@@ -75,19 +77,47 @@ if type(todo) == int:
         print 'Verification: {%s}' % (apiVerification)
         print 'Nickname:     {%s}' % (apiNickname)
         exit(1)
-    print '==='
-    print 'Using API Key for nickname [%s]' % (apiNickname)
-    print '==='
-    pew = Pew(apiId,apiVerification)
+
+# Check input from CLI and assign
+if type(todo) == int:
+    apiPick = apiList[int(todo)]
 else:
     print ''
-    print 'Please pick one of the following keys and use the number at the left as an argument.'
+    print 'Please pick one of the following keys or type "quit" to exit.'
     print ''
     for line in range(len(apiList)):
         if line >= 1:
             print '%s) %s [ID: %s]' % (line,apiList[line][2],apiList[line][0])
     print ''
-    exit(1)
+    def pickApi():
+        todoInput = raw_input("Key to use: ")
+        if todoInput == 'quit' or todoInput == 'q':
+            print "ERROR: Quitting!"
+            exit()
+        if todoInput.isdigit():
+            todoInput = int(todoInput)
+        else:
+            print "ERROR: Please enter an item number and only a number."
+            pickApi()
+        if todoInput in range(len(apiList)):
+            apiPick = apiList[todoInput]
+            return([apiId, apiVerification, apiNickname])
+        else:
+            print "ERROR: Sorry, this isn't in our list: %s" % (todoInput)
+            pickApi()
+    apiPick = pickApi()
+
+apiId = apiPick[0]
+apiVerification = apiPick[1]
+apiNickname = apiPick[2]
+
+# announce key we're using:
+#print '==='
+#print 'Using API Key for nickname [%s]' % (apiNickname)
+#print '==='
+
+# init Pew XML API wrapper
+pew = Pew(apiId,apiVerification)
 
 # Using "try" here because if this doesn't work, the rest of the script is gonna fail miserably.
 
@@ -163,9 +193,8 @@ else:
 
         planetCount = len(p.colonies)
 
-        # initial vars for expireDate and lastPinExpireDate
-        #
-        expireDate = datetime.strptime("2300-01-01 00:00:00", apiDateFormat)
+        # initial vars for expireDate and lastPinExpireDate to start fresh on each character
+        expireDate = datetime.strptime("2285-09-09 11:11:11", apiDateFormat)
         lastPinExpireDate = expireDate
 
         if planetCount > 0:
@@ -247,10 +276,10 @@ else:
             print '********************************'
             print '***   PLANETS AVAILABLE: %s   ***' % (planetsMax - planetCount)
             print '********************************'
-        print '--- Gal Ind Skill:      %s' % (galIndustrialSkill)
-        print '--- Upgrades Skill:     %s %s' % (upgradesSkill,upgradesSkillString)
-        print '--- Planet Count:       %s %s' % (planetCount,planetsSkillString)
-        print '--- Planets Expire:     %s' % (expireDateLocal)
+        #print '--- Gal Ind Skill:      %s' % (galIndustrialSkill)
+        #print '--- Upgrades Skill:     %s %s' % (upgradesSkill,upgradesSkillString)
+        #print '--- Planet Count:       %s %s' % (planetCount,planetsSkillString)
+        print '--- Next Expiration:    %s' % (expireDateLocal)
         print '--- %s %s' % (expiryString,expiryWhenString)
 exit()
 
