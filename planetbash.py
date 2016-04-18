@@ -54,7 +54,7 @@ except:
     print ''
     print 'CSV IMPORT FAILURE! Make sure .eve_apis exists here!'
     print ''
-    print 'CSV format be: keyid,verification,nickname with a key on the first line'
+    print 'CSV format is: keyid,verification,nickname with a key on the first line'
     print ''
     raise
     exit(1)
@@ -76,6 +76,10 @@ for i in range(len(apiList)):
         print 'ID:           {%s}' % (apiId)
         print 'Verification: {%s}' % (apiVerification)
         print 'Nickname:     {%s}' % (apiNickname)
+        print ''
+        print 'CSV format is: keyid,verification,nickname with a key on the first line'
+        print ''
+        raise
         exit(1)
 
 # Check input from CLI and assign
@@ -89,23 +93,29 @@ else:
         if line >= 1:
             print '%s) %s [ID: %s]' % (line,apiList[line][2],apiList[line][0])
     print ''
-    def pickApi():
+
+    def pickApi(apiListInput):
         todoInput = raw_input("Key to use: ")
+        # handle quit request
         if todoInput == 'quit' or todoInput == 'q':
             print "ERROR: Quitting!"
             exit()
-        if todoInput.isdigit():
-            todoInput = int(todoInput)
+        # handle non-digit
+        if not todoInput.isdigit():
+            print "ERROR: Please enter only an item number."
+            pickApi(apiListInput)
+        # if our input definitely is a digit, lets make sure its an int
         else:
-            print "ERROR: Please enter an item number and only a number."
-            pickApi()
-        if todoInput in range(len(apiList)):
-            apiPick = apiList[todoInput]
-            return([apiId, apiVerification, apiNickname])
+            todoInput = int(todoInput)
+        # is this int within our list of keys? if so, return our pick!
+        if todoInput in range(len(apiListInput)):
+            apiSelection = apiList[todoInput]
+            return(apiSelection)
         else:
             print "ERROR: Sorry, this isn't in our list: %s" % (todoInput)
-            pickApi()
-    apiPick = pickApi()
+            pickApi(apiListInput)
+
+    apiPick = pickApi(apiList)
 
 apiId = apiPick[0]
 apiVerification = apiPick[1]
@@ -152,8 +162,10 @@ else:
         # For this script there are only three skills we really care about since
         # they're arguably the only ones that affect Planetary Interaction
 
+        spTotal = 0
+
         for n in range(len(charSheet.skills)):
-#            spTotal += charSheet.skills[n].skillpoints
+            spTotal += charSheet.skills[n].skillpoints
             if charSheet.skills[n].typeID == 3340: # Gallente Industrial
                 galIndustrialSkill = charSheet.skills[n].level
             if charSheet.skills[n].typeID == 2495: # Interplanetary Consolodation
@@ -181,7 +193,7 @@ else:
             planetsSkillString = ''
         elif planetsSkill <= 3:
             planetsSkillString = '- NEEDS TRAINING'
-
+        #
         if upgradesSkill == 5:
             upgradesSkillString = '- MAXED UPGRADES'
         elif upgradesSkill == 4:
