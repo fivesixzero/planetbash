@@ -175,7 +175,7 @@ else:
                 # PER PLANET PINS DATA:
                 # Each pin is a planet facility.
                 #
-                # 'contentQuantity', 'contentTypeID', 'contentTypeName', 'cycleTime', 'expiryTime', 'installTime',  'lastLaunchTime', 'latitude', 'longitude', 'pinID', 'quantityPerCycle', 'schematicID', 'typeID',     'typeName'
+                # 'contentQuantity', 'contentTypeID', 'contentTypeName', 'cycleTime', 'expiryTime', 'installTime',  'lastLaunchTime', 'latitude', 'longitude', 'pinID', 'quantityPerCycle', 'schematicID', 'typeID', 'typeName'
                 #
                 # contentTypeIDs: P0 [1032,1033,1035], P1 [1042], P2 [1034], P3 [1040], P4 [1041]
                 # -- Gathered from invTypes table in SDE
@@ -196,7 +196,7 @@ else:
                     typeID = pins.pins[pin].typeID
                     typeName = pins.pins[pin].typeName
                     contentQuantity = pins.pins[pin].contentQuantity
-                    contentTypeName = pins.pins[pin].contentTypeID
+                    contentTypeID = pins.pins[pin].contentTypeID
                     contentTypeName = pins.pins[pin].contentTypeName
                     cycleTime = pins.pins[pin].cycleTime
                     expiryTime = pins.pins[pin].expiryTime
@@ -223,9 +223,6 @@ else:
                 planetTypeName = p.colonies[n].planetTypeName
                 structures = p.colonies[n].numberOfPins
                 pID = str(p.colonies[n].planetID)
-
-                #debug
-                # print '--- Planet %s: %s,\t%s\t[%s], {%s}' % (pseq, planetName, planetTypeName, structures, pID)
 
             if expireDate > datetime.now():
                 expireDateLocal = datetime.strftime(utc_to_local(expireDate),localDateFormat)
