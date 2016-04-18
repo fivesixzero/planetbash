@@ -32,7 +32,7 @@ Make sure these guys are available via 'pip install'!
 
 1. Create `.eve_apis` CSV file
 2. Run `./planetbash.py` at the CLI
-3. Observe the short and simple next-expiration outupt!
+3. Observe the short and simple next-expiration outupt
 
 #### `.eve_apis` CSV file
 
