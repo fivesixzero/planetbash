@@ -38,6 +38,7 @@ localDateFormat = '%a, %b %d at %I:%M %p %Z'
 shortDateFormat = '%a, %m/%d'
 
 # Work out what to do based on our input arg and the CSV contents
+# todo: add some command-line switches... more/less char detail, more/less planet deets
 
 if len(sys.argv) > 1:
     todo = int(sys.argv[1])
@@ -53,7 +54,7 @@ except:
     print ''
     print 'CSV IMPORT FAILURE! Make sure .eve_apis exists here!'
     print ''
-    print 'CSV format be: keyid,verification,nickname with a key on the first line'
+    print 'CSV format is: keyid,verification,nickname with a key on the first line'
     print ''
     raise
     exit(1)
@@ -63,31 +64,70 @@ except:
 apiList = list(csv.reader(apiCSV, delimiter=',', quotechar='\''))
 apiCSV.close()
 
-if type(todo) == int:
-    apiId = apiList[int(todo)][0]
-    apiVerification = apiList[int(todo)][1]
-    apiNickname = apiList[int(todo)][2]
-    if not (re.match('[0-9]{7}', apiId) and re.match('[0-9A-Za-z]{64}',apiVerification)):
+# Check entire csv for sanity - we don't want to do anything unless we know the CSV is legit.
+for i in range(len(apiList)):
+    apiId = apiList[int(i)][0]
+    apiVerification = apiList[int(i)][1]
+    apiNickname = apiList[int(i)][2]
+    if (i > 0) and (not (re.match('[0-9]{7}', apiId) and re.match('[0-9A-Za-z]{64}',apiVerification))):
         apiOK = 'false'
         print 'ERROR: API key nicknamed "%s" is bad! Please fix .eve_apis file and try again.' % (apiNickname)
         print ''
         print 'ID:           {%s}' % (apiId)
         print 'Verification: {%s}' % (apiVerification)
         print 'Nickname:     {%s}' % (apiNickname)
+        print ''
+        print 'CSV format is: keyid,verification,nickname with a key on the first line'
+        print ''
+        raise
         exit(1)
-    print '==='
-    print 'Using API Key for nickname [%s]' % (apiNickname)
-    print '==='
-    pew = Pew(apiId,apiVerification)
+
+# Check input from CLI and assign
+if type(todo) == int:
+    apiPick = apiList[int(todo)]
 else:
     print ''
-    print 'Please pick one of the following keys and use the number at the left as an argument.'
+    print 'Please pick one of the following keys or type "quit" to exit.'
     print ''
     for line in range(len(apiList)):
         if line >= 1:
             print '%s) %s [ID: %s]' % (line,apiList[line][2],apiList[line][0])
     print ''
-    exit(1)
+
+    def pickApi(apiListInput):
+        todoInput = raw_input("Key to use: ")
+        # handle quit request
+        if todoInput == 'quit' or todoInput == 'q':
+            print "ERROR: Quitting!"
+            exit()
+        # handle non-digit
+        if not todoInput.isdigit():
+            print "ERROR: Please enter only an item number."
+            pickApi(apiListInput)
+        # if our input definitely is a digit, lets make sure its an int
+        else:
+            todoInput = int(todoInput)
+        # is this int within our list of keys? if so, return our pick!
+        if todoInput in range(len(apiListInput)):
+            apiSelection = apiList[todoInput]
+            return(apiSelection)
+        else:
+            print "ERROR: Sorry, this isn't in our list: %s" % (todoInput)
+            pickApi(apiListInput)
+
+    apiPick = pickApi(apiList)
+
+apiId = apiPick[0]
+apiVerification = apiPick[1]
+apiNickname = apiPick[2]
+
+# announce key we're using:
+#print '==='
+#print 'Using API Key for nickname [%s]' % (apiNickname)
+#print '==='
+
+# init Pew XML API wrapper
+pew = Pew(apiId,apiVerification)
 
 # Using "try" here because if this doesn't work, the rest of the script is gonna fail miserably.
 
@@ -122,8 +162,10 @@ else:
         # For this script there are only three skills we really care about since
         # they're arguably the only ones that affect Planetary Interaction
 
+        spTotal = 0
+
         for n in range(len(charSheet.skills)):
-#            spTotal += charSheet.skills[n].skillpoints
+            spTotal += charSheet.skills[n].skillpoints
             if charSheet.skills[n].typeID == 3340: # Gallente Industrial
                 galIndustrialSkill = charSheet.skills[n].level
             if charSheet.skills[n].typeID == 2495: # Interplanetary Consolodation
@@ -151,7 +193,7 @@ else:
             planetsSkillString = ''
         elif planetsSkill <= 3:
             planetsSkillString = '- NEEDS TRAINING'
-
+        #
         if upgradesSkill == 5:
             upgradesSkillString = '- MAXED UPGRADES'
         elif upgradesSkill == 4:
@@ -163,6 +205,10 @@ else:
 
         planetCount = len(p.colonies)
 
+        # initial vars for expireDate and lastPinExpireDate to start fresh on each character
+        expireDate = datetime.strptime("2285-09-09 11:11:11", apiDateFormat)
+        lastPinExpireDate = expireDate
+
         if planetCount > 0:
 
             for n in range(len(p.colonies)):
@@ -170,7 +216,7 @@ else:
                 # PER PLANET PINS DATA:
                 # Each pin is a planet facility.
                 #
-                # 'contentQuantity', 'contentTypeID', 'contentTypeName', 'cycleTime', 'expiryTime', 'installTime',  'lastLaunchTime', 'latitude', 'longitude', 'pinID', 'quantityPerCycle', 'schematicID', 'typeID',     'typeName'
+                # 'contentQuantity', 'contentTypeID', 'contentTypeName', 'cycleTime', 'expiryTime', 'installTime',  'lastLaunchTime', 'latitude', 'longitude', 'pinID', 'quantityPerCycle', 'schematicID', 'typeID', 'typeName'
                 #
                 # contentTypeIDs: P0 [1032,1033,1035], P1 [1042], P2 [1034], P3 [1040], P4 [1041]
                 # -- Gathered from invTypes table in SDE
@@ -182,22 +228,42 @@ else:
 
                 for pin in range(len(pins.pins)):
 
-                    #debug
-                    # print "--- Planet: %s: PIN typeID: %s, EXPIRY: %s" % (p.colonies[n].planetName, pins.pins[pin].typeID, pins.pins[pin].expiryTime)
+                    commandTypes = [2254, 2524, 2525, 2533, 2534, 2549, 2550, 2551]
+                    launchpadTypes = [2256, 2542, 2543, 2544, 2552, 2555, 2556, 2557]
+                    extractorTypes = [2848, 3060, 3061, 3062, 3063, 3064, 3067, 3068]
+                    storageTypes = [2257, 2535, 2536, 2541, 2558, 2560, 2561, 2562]
+                    factoryTypes = [2469, 2471, 2473, 2481, 2483, 2490, 2492, 2493, 2470, 2472, 2474, 2480, 2484, 2485, 2491, 2494, 2475, 2482]
 
-                    if pins.pins[pin].expiryTime.startswith('0001'):
-                        nonExtractors += 1
+                    typeID = pins.pins[pin].typeID
+                    typeName = pins.pins[pin].typeName
+                    contentQuantity = pins.pins[pin].contentQuantity
+                    contentTypeID = pins.pins[pin].contentTypeID
+                    contentTypeName = pins.pins[pin].contentTypeName
+                    cycleTime = pins.pins[pin].cycleTime
+                    expiryTime = pins.pins[pin].expiryTime
+
+                    pinExpireDate = datetime.strptime(pins.pins[pin].expiryTime,apiDateFormat)
+
+                    if typeID in commandTypes:
+                        pinType = 'command'
+                    elif typeID in launchpadTypes:
+                        pinType = 'launchpad'
+                    elif typeID in extractorTypes:
+                        pinType = 'extractor'
+                        if (pinExpireDate <= lastPinExpireDate) and (expireDate <= lastPinExpireDate):
+                            expireDate = pinExpireDate
+                            lastPinExpireDate = pinExpireDate
+                    elif typeID in storageTypes:
+                        pinType = 'storage'
+                    elif typeID in factoryTypes:
+                        pinType = 'factory'
                     else:
-                        extractors += 1
-                        expireDate = datetime.strptime(pins.pins[pin].expiryTime,apiDateFormat)
+                        pinType = 'unknown'
 
                 planetName = p.colonies[n].planetName
                 planetTypeName = p.colonies[n].planetTypeName
                 structures = p.colonies[n].numberOfPins
                 pID = str(p.colonies[n].planetID)
-
-                #debug
-                # print '--- Planet %s: %s,\t%s\t[%s], {%s}' % (pseq, planetName, planetTypeName, structures, pID)
 
             if expireDate > datetime.now():
                 expireDateLocal = datetime.strftime(utc_to_local(expireDate),localDateFormat)
@@ -211,21 +277,21 @@ else:
                 timeSinceExpire = timedelta_to_string(expireDelta)
                 expiryWhenString = '%s --- EXPIRED!' % (timeSinceExpire)
                 expiryString = 'Time Since Expiry: '
-
+        # END PLANET DATA LOOP
+        # This runs if the character has zero planets
         else:
-
-                expireDateLocal = '### None to Expire! ###'
-                expiryString = '[you really should set up some planets]'
+            expireDateLocal = '### None to Expire! ###'
+            expiryString = '[you really should set up some planets]'
 
  #       print '---'
         if planetCount < planetsMax:
             print '********************************'
             print '***   PLANETS AVAILABLE: %s   ***' % (planetsMax - planetCount)
             print '********************************'
-        print '--- Gal Ind Skill:      %s' % (galIndustrialSkill)
-        print '--- Upgrades Skill:     %s %s' % (upgradesSkill,upgradesSkillString)
-        print '--- Planet Count:       %s %s' % (planetCount,planetsSkillString)
-        print '--- Planets Expire:     %s' % (expireDateLocal)
+        #print '--- Gal Ind Skill:      %s' % (galIndustrialSkill)
+        #print '--- Upgrades Skill:     %s %s' % (upgradesSkill,upgradesSkillString)
+        #print '--- Planet Count:       %s %s' % (planetCount,planetsSkillString)
+        print '--- Next Expiration:    %s' % (expireDateLocal)
         print '--- %s %s' % (expiryString,expiryWhenString)
 exit()
 
