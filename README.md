@@ -61,9 +61,13 @@ Please pick one of the following keys and use the number at the left as an argum
 2) industry alts [ID: 1234568]
 3) goon spy [ID: 1234569]
 4) boring highsec guy [ID: 1234570]
+
+Key to use:
 ```
 
-To run planetbash.py with the "goon spy" key above, run the following:
+A key can be selected by typing in the key number on the left.
+
+To run planetbash.py with the "goon spy" key above, you could also run it with the following:
 
 ```
 $ ./planetbash.py 3
