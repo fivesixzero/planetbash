@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # TODO: Create capability for in-script "run through all in API" functionality
+# TODO: Enable the above most effectively by functionalizing stuff! Break it down!
 #
 # TODO [long-term]: Add quick check for broken routes!
 # TODO [long-term]: Add "time to done" for factory planets
