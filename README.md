@@ -61,9 +61,13 @@ Please pick one of the following keys and use the number at the left as an argum
 2) industry alts [ID: 1234568]
 3) goon spy [ID: 1234569]
 4) boring highsec guy [ID: 1234570]
+
+Key to use:
 ```
 
-To run planetbash.py with the "goon spy" key above, run the following:
+A key can be selected by typing in the key number on the left.
+
+To run planetbash.py with the "goon spy" key above, you could also run it with the following:
 
 ```
 $ ./planetbash.py 3
@@ -92,10 +96,6 @@ A: Well, I've also never done anything with the EVE API (or any API) before, so 
 Q: Are you only making a shell script?
 
 A: I hope not! Ideally I'd like to have this info displayed in a web app but that'll take some time - I really wanted to whip up a proof of concept to get this moving quickly. And in tne end, this turned out to be pretty neat! I actually use it daily to keep track of my 12 Planetary Interaction alt characters. So it seemed like a good time to share.
-
-Q: These expiration times seem wonky. What gives?
-
-A: Since I'm new to Python I'm still learning to wrangle lists and juggle variables properly. As soon as I figure that out the extractor expiration times are going to be more accurate! Right now its just pulling the expiration date of the last extractor on the last planet because, well, that was good enough for me to make this proof of concept work. But I don't like it and it'll be one of the first things I address.
 
 Q: What's this "Pew" thing?
 
