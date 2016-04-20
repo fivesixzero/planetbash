@@ -224,9 +224,6 @@ else:
 
                 pins = pew.char_planetary_pins(c.characterID,p.colonies[n].planetID)
 
-                nonExtractors = 0
-                extractors = 0
-
                 for pin in range(len(pins.pins)):
 
                     commandTypes = [2254, 2524, 2525, 2533, 2534, 2549, 2550, 2551]
