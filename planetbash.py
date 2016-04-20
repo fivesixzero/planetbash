@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-# TODO: Create capability for in-script "run through all in API" functionality
+# TODO: Create capability for in-script "run through all in API CSV" functionality
 # TODO: Enable the above most effectively by functionalizing stuff! Break it down!
 #
+# TODO [mid-term]: Create logic to decide what "type" planet is - P0/P1? Factory?
 # TODO [long-term]: Add quick check for broken routes!
 # TODO [long-term]: Add "time to done" for factory planets
 
@@ -164,6 +165,9 @@ else:
         # they're arguably the only ones that affect Planetary Interaction
 
         spTotal = 0
+        galIndustrialSkill = 0
+        planetsSkill = 0
+        upgradesSkill = 0
 
         for n in range(len(charSheet.skills)):
             spTotal += charSheet.skills[n].skillpoints
@@ -224,16 +228,19 @@ else:
 
                 pins = pew.char_planetary_pins(c.characterID,p.colonies[n].planetID)
 
-                nonExtractors = 0
-                extractors = 0
-
                 for pin in range(len(pins.pins)):
 
-                    commandTypes = [2254, 2524, 2525, 2533, 2534, 2549, 2550, 2551]
-                    launchpadTypes = [2256, 2542, 2543, 2544, 2552, 2555, 2556, 2557]
-                    extractorTypes = [2848, 3060, 3061, 3062, 3063, 3064, 3067, 3068]
-                    storageTypes = [2257, 2535, 2536, 2541, 2558, 2560, 2561, 2562]
-                    factoryTypes = [2469, 2471, 2473, 2481, 2483, 2490, 2492, 2493, 2470, 2472, 2474, 2480, 2484, 2485, 2491, 2494, 2475, 2482]
+                    commandTypes = [2254,2524,2525,2533,2534,2549,2550,2551]
+                    launchpadTypes = [2256,2542,2543,2544,2552,2555,2556,2557]
+                    extractorTypes = [2848,3060,3061,3062,3063,3064,3067,3068]
+                    storageTypes = [2257,2535,2536,2541,2558,2560,2561,2562]
+                    factoryTypes = [2469,2471,2473,2481,2483,2490,2492,2493,2470,2472,2474,2480,2484,2485,2491,2494,2475,2482]
+
+                    p0Types = [2073,2267,2268,2270,2272,2286,2287,2288,2305,2306,2307,2308,2309,2310,2311]
+                    p1Types = [2389,2390,2392,2393,2395,2396,2397,2398,2399,2400,2401,3645,3683,3779,9828]
+                    p2Types = [44,2312,2317,2319,2321,2327,2328,2329,2463,3689,3691,3693,3695,3697,3725,3775,3828,9830,9832,9836,9838,9840,9842,15317]
+                    p3Types = [2344,2345,2346,2348,2349,2351,2352,2354,2358,2360,2361,2366,2367,9834,9846,9848,12836,17136,17392,17898,28974]
+                    p4Types = [2867,2868,2869,2870,2871,2872,2875,2876]
 
                     typeID = pins.pins[pin].typeID
                     typeName = pins.pins[pin].typeName
@@ -283,15 +290,12 @@ else:
         else:
             expireDateLocal = '### None to Expire! ###'
             expiryString = '[you really should set up some planets]'
+            expiryWhenString = ''
 
- #       print '---'
         if planetCount < planetsMax:
             print '********************************'
             print '***   PLANETS AVAILABLE: %s   ***' % (planetsMax - planetCount)
             print '********************************'
-        #print '--- Gal Ind Skill:      %s' % (galIndustrialSkill)
-        #print '--- Upgrades Skill:     %s %s' % (upgradesSkill,upgradesSkillString)
-        #print '--- Planet Count:       %s %s' % (planetCount,planetsSkillString)
         print '--- Next Expiration:    %s' % (expireDateLocal)
         print '--- %s %s' % (expiryString,expiryWhenString)
 exit()
