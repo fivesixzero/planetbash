@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-# TODO: Create capability for in-script "run through all in API" functionality
+# TODO: Create capability for in-script "run through all in API CSV" functionality
 # TODO: Enable the above most effectively by functionalizing stuff! Break it down!
 #
+# TODO [mid-term]: Create logic to decide what "type" planet is - P0/P1? Factory?
 # TODO [long-term]: Add quick check for broken routes!
 # TODO [long-term]: Add "time to done" for factory planets
 
@@ -164,6 +165,9 @@ else:
         # they're arguably the only ones that affect Planetary Interaction
 
         spTotal = 0
+        galIndustrialSkill = 0
+        planetsSkill = 0
+        upgradesSkill = 0
 
         for n in range(len(charSheet.skills)):
             spTotal += charSheet.skills[n].skillpoints
@@ -286,15 +290,12 @@ else:
         else:
             expireDateLocal = '### None to Expire! ###'
             expiryString = '[you really should set up some planets]'
+            expiryWhenString = ''
 
- #       print '---'
         if planetCount < planetsMax:
             print '********************************'
             print '***   PLANETS AVAILABLE: %s   ***' % (planetsMax - planetCount)
             print '********************************'
-        #print '--- Gal Ind Skill:      %s' % (galIndustrialSkill)
-        #print '--- Upgrades Skill:     %s %s' % (upgradesSkill,upgradesSkillString)
-        #print '--- Planet Count:       %s %s' % (planetCount,planetsSkillString)
         print '--- Next Expiration:    %s' % (expireDateLocal)
         print '--- %s %s' % (expiryString,expiryWhenString)
 exit()
