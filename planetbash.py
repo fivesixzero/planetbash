@@ -180,7 +180,8 @@ else:
 
         # PLANETS DATA:
         #
-        # 'lastUpdate', 'numberOfPins', 'ownerID', 'ownerName', 'planetID', 'planetName', 'planetTypeID', 'planetTypeName', 'solarSystemID', 'solarSystemName', 'upgradeLevel'
+        # 'lastUpdate', 'numberOfPins', 'ownerID', 'ownerName', 'planetID', 'planetName',
+        # 'planetTypeID', 'planetTypeName', 'solarSystemID', 'solarSystemName', 'upgradeLevel'
         #
         ###
         ### TODO -- More work with expire dates! Grab then more intelligently.
@@ -268,22 +269,17 @@ else:
                     else:
                         pinType = 'unknown'
 
-                planetName = p.colonies[n].planetName
-                planetTypeName = p.colonies[n].planetTypeName
-                structures = p.colonies[n].numberOfPins
-                pID = str(p.colonies[n].planetID)
-
             if expireDate > datetime.now():
                 expireDateLocal = datetime.strftime(utc_to_local(expireDate),localDateFormat)
-                expireDelta = expireDate - datetime.now()
+                expireDelta = expireDate - datetime.utcnow()
                 timeToExpire = timedelta_to_string(expireDelta)
                 expiryWhenString = '%s' % (timeToExpire)
                 expiryString = 'Time Until Expiry: '
             else:
                 expireDateLocal = '### EXPIRED ON %s ###' % (datetime.strftime(utc_to_local(expireDate),shortDateFormat))
-                expireDelta = datetime.now() - expireDate
+                expireDelta = datetime.utcnow() - expireDate
                 timeSinceExpire = timedelta_to_string(expireDelta)
-                expiryWhenString = '%s --- EXPIRED!' % (timeSinceExpire)
+                expiryWhenString = '%s --- EXPIRED! [%s]' % (timeSinceExpire,p.colonies[n].planetName)
                 expiryString = 'Time Since Expiry: '
         # END PLANET DATA LOOP
         # This runs if the character has zero planets
