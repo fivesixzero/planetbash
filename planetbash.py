@@ -76,12 +76,7 @@ def getApiListFromCSV(filename):
     return apiList
 
 def getTodoArg(args):
-    if (len(args) == 2) and (re.match('[0-9]*', args[1])):
-        #print "SUCCESS?! "
-        #print "          sys.argv[1]: %s" % (args[1])
-        #print "          type: %s len: %s" % (type(args[1]), len(args[1]))
-        #print "          matchBool:             %s" % (bool(re.match(r'[0-9]{1,}', args[1])))
-        #print "          sys.argv[1].isdigit(): %s" % (args[1].isdigit())
+    if (len(args) == 2) and (bool(re.match(r'[0-9]+', args[1]))):
         return int(args[1])
     else:
         if len(args) > 2:
@@ -90,64 +85,43 @@ def getTodoArg(args):
             print '\nNo valid argument provided.'
         return False
 
+def getApiFromList(apiList,todo):
+    # Is a safe todo item coming into us from arguments?
+    if todo and todo <= len(apiList) and todo is not 0:
+        apiPick = apiList[int(todo)]
+    else:
+        print '\nPlease pick one of the following keys or type "quit" to exit.\n'
+        for line in range(len(apiList)):
+            if line >= 1:
+                print '%s) %-15s [Key ID: %s]' % (line,apiList[line][2],apiList[line][0])
+        print ''
+        # input loop
+        while True:
+            todoInput = raw_input("Key to use: ")
+            if todoInput == 'quit' or todoInput == 'q': sys.exit(1)
+            elif (not todoInput.isdigit()) or todoInput == '0':
+                print "ERROR: Please enter a valid item number."
+            elif int(todoInput) not in range(len(apiList)):
+                print "ERROR: Sorry, %s isn't in our list." % (todoInput)
+            else:
+                break
+        apiPick = apiList[int(todoInput)]
+        # end input loop
+    return apiPick[0], apiPick[1], apiPick[2]
+
 # Work out what to do based on our input arg and the CSV contents
 # todo: add some command-line switches... more/less char detail, more/less planet deets
-
-# Build API key list from CSV file, complete with sanity checks
-apiList = getApiListFromCSV(API_CSV_FILENAME)
 
 # for now we just care about TodoArg - in the future we'll add switches. :)
 todo = getTodoArg(sys.argv)
 
 # Check input from CLI and assign
-if todo:
-    apiPick = apiList[int(todo)]
-else:
-    print ''
-    print 'Please pick one of the following keys or type "quit" to exit.'
-    print ''
-    for line in range(len(apiList)):
-        if line >= 1:
-            print '%s) %-15s [Key ID: %s]' % (line,apiList[line][2],apiList[line][0])
-    print ''
+apiId, apiVerification, apiNickname = getApiFromList(getApiListFromCSV(API_CSV_FILENAME),todo)
 
-    def pickApi(apiListInput):
-        todoInput = raw_input("Key to use: ")
-        # handle quit request
-        if todoInput == 'quit' or todoInput == 'q':
-            print "ERROR: Quitting!"
-            exit()
-        # handle non-digit
-        if not todoInput.isdigit():
-            print "ERROR: Please enter only an item number."
-            pickApi(apiListInput)
-        # if our input definitely is a digit, lets make sure its an int
-        else:
-            todoInput = int(todoInput)
-        # is this int within our list of keys? if so, return our pick!
-        if todoInput in range(len(apiListInput)):
-            apiSelection = apiList[todoInput]
-            return(apiSelection)
-        else:
-            print "ERROR: Sorry, this isn't in our list: %s" % (todoInput)
-            pickApi(apiListInput)
-
-    apiPick = pickApi(apiList)
-
-apiId = apiPick[0]
-apiVerification = apiPick[1]
-apiNickname = apiPick[2]
-
-# announce key we're using:
-#print '==='
-#print 'Using API Key for nickname [%s]' % (apiNickname)
-#print '==='
-
-# init Pew XML API wrapper
+# init Pew XML API wrapper with our fresh pick
 pew = Pew(apiId,apiVerification)
 
 # Using "try" here because if this doesn't work, the rest of the script is gonna fail miserably.
-
 try:
 
     #
