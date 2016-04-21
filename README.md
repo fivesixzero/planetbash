@@ -38,8 +38,7 @@ Make sure these guys are available via 'pip install'!
 
 To use this script all you've got to do is drop a few API keys (or a bunch of API kes) into a file named `.eve_apis` in the project root. The first line is ignored to allow for a proper `CSV` header.
 
-'''
-id,verification,nickname
+'''id,verification,nickname
 1234567,QVxblnXnr5FLWlWlkx4San0XMeHLygYz5zr6LhFcqyZ6LUakD5npFAhbd0glegPe,main account
 1234568,o3YhqmeQtbITAZLkhadVha76i9d2LgXJsIkzUY1vdzW1Seqy4gg3NGIhWRcNqDCh,industry alts
 1234569,MYhnV6RlzhzMA31L9iqi5rg6Zl3TBhuisdX1vR6pX6hgmbIeOTN7nVsfm7ukeV6Y,goon spy

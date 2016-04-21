@@ -19,8 +19,15 @@ import pytz
 import re
 
 # assign our local TZ based on this system's local TZ at runtime.
-
 local_tz = get_localzone()
+
+# static date string format vars
+apiDateFormat = '%Y-%m-%d %H:%M:%S'
+localDateFormat = '%a, %b %d at %I:%M %p %Z'
+shortDateFormat = '%a, %m/%d'
+# what file are we reading APIs from?
+API_CSV_FILENAME = '.eve_apis'
+# what does an API key look like?
 
 # shifts a datetime into local timezone
 def utc_to_local(utc_dt):
@@ -35,57 +42,65 @@ def timedelta_to_string(timedelta):
     minutes, seconds = divmod(remainder2, 60)
     return '{} days, {} hours, {} minutes'.format(days, hours, minutes)
 
-apiDateFormat = '%Y-%m-%d %H:%M:%S'
-localDateFormat = '%a, %b %d at %I:%M %p %Z'
-shortDateFormat = '%a, %m/%d'
+def printApiCSVExample():
+    print ''
+    print 'CSV IMPORT FAILURE! Make sure .eve_apis exists here!'
+    print ''
+    print 'CSV format looks like this:'
+    print ''
+    print 'keyid,verification,nickname'
+    print '1234567,QVxblnXnr5FLWlWlkx4San0XMeHLygYz5zr6LhFcqyZ6LUakD5npFAhbd0glegPe,main account'
+    print '1234568,o3YhqmeQtbITAZLkhadVha76i9d2LgXJsIkzUY1vdzW1Seqy4gg3NGIhWRcNqDCh,industry alts'
+    print '1234569,MYhnV6RlzhzMA31L9iqi5rg6Zl3TBhuisdX1vR6pX6hgmbIeOTN7nVsfm7ukeV6Y,goon spy'
+    print ''
+
+def getApiListFromCSV(filename):
+    try:
+        apiCSV = open(filename, 'rb')
+        apiList = list(csv.reader(apiCSV, delimiter=',', quotechar='\''))
+        apiCSV.close()
+    except:
+        printApiCSVExample()
+        sys.exit(2)
+
+    # Check list sanity
+    for i in range(len(apiList)):
+        apiId = apiList[int(i)][0]
+        apiVerification = apiList[int(i)][1]
+        apiNickname = apiList[int(i)][2]
+        if (i > 0) and (not (bool(re.match(r'[0-9]{7,}', apiId)) and bool(re.match(r'[0-9A-Za-z]{64}',apiVerification)))):
+            printApiCSVExample()
+            sys.exit(2)
+
+    # Found good CSV? Found list sane? Lets return that list!
+    return apiList
+
+def getTodoArg(args):
+    if (len(args) == 2) and (re.match('[0-9]*', args[1])):
+        #print "SUCCESS?! "
+        #print "          sys.argv[1]: %s" % (args[1])
+        #print "          type: %s len: %s" % (type(args[1]), len(args[1]))
+        #print "          matchBool:             %s" % (bool(re.match(r'[0-9]{1,}', args[1])))
+        #print "          sys.argv[1].isdigit(): %s" % (args[1].isdigit())
+        return int(args[1])
+    else:
+        if len(args) > 2:
+            print '\nToo many arguments. Only provide a single integer, please'
+        else:
+            print '\nNo valid argument provided.'
+        return False
 
 # Work out what to do based on our input arg and the CSV contents
 # todo: add some command-line switches... more/less char detail, more/less planet deets
 
-if len(sys.argv) > 1:
-    todo = int(sys.argv[1])
-else:
-    todo = 'nope'
+# Build API key list from CSV file, complete with sanity checks
+apiList = getApiListFromCSV(API_CSV_FILENAME)
 
-# Try to open the CSV file containing API keys.
-# If we fail, provide some details and an error.
-
-try:
-    apiCSV = open('.eve_apis', 'rb')
-except:
-    print ''
-    print 'CSV IMPORT FAILURE! Make sure .eve_apis exists here!'
-    print ''
-    print 'CSV format is: keyid,verification,nickname with a key on the first line'
-    print ''
-    raise
-    exit(1)
-
-# Create a list from the CSV and close the file handle
-
-apiList = list(csv.reader(apiCSV, delimiter=',', quotechar='\''))
-apiCSV.close()
-
-# Check entire csv for sanity - we don't want to do anything unless we know the CSV is legit.
-for i in range(len(apiList)):
-    apiId = apiList[int(i)][0]
-    apiVerification = apiList[int(i)][1]
-    apiNickname = apiList[int(i)][2]
-    if (i > 0) and (not (re.match('[0-9]{7}', apiId) and re.match('[0-9A-Za-z]{64}',apiVerification))):
-        apiOK = 'false'
-        print 'ERROR: API key nicknamed "%s" is bad! Please fix .eve_apis file and try again.' % (apiNickname)
-        print ''
-        print 'ID:           {%s}' % (apiId)
-        print 'Verification: {%s}' % (apiVerification)
-        print 'Nickname:     {%s}' % (apiNickname)
-        print ''
-        print 'CSV format is: keyid,verification,nickname with a key on the first line'
-        print ''
-        raise
-        exit(1)
+# for now we just care about TodoArg - in the future we'll add switches. :)
+todo = getTodoArg(sys.argv)
 
 # Check input from CLI and assign
-if type(todo) == int:
+if todo:
     apiPick = apiList[int(todo)]
 else:
     print ''
@@ -93,7 +108,7 @@ else:
     print ''
     for line in range(len(apiList)):
         if line >= 1:
-            print '%s) %s [ID: %s]' % (line,apiList[line][2],apiList[line][0])
+            print '%s) %-15s [Key ID: %s]' % (line,apiList[line][2],apiList[line][0])
     print ''
 
     def pickApi(apiListInput):
@@ -217,12 +232,19 @@ else:
 
         if planetCount > 0:
 
+            planetNameList = []
+            planetExpireDate = datetime.strptime("2285-09-09 11:11:11", apiDateFormat)
+
             for n in range(len(p.colonies)):
+
+                planetNameList.append(p.colonies[n].planetName)
 
                 # PER PLANET PINS DATA:
                 # Each pin is a planet facility.
                 #
-                # 'contentQuantity', 'contentTypeID', 'contentTypeName', 'cycleTime', 'expiryTime', 'installTime',  'lastLaunchTime', 'latitude', 'longitude', 'pinID', 'quantityPerCycle', 'schematicID', 'typeID', 'typeName'
+                # 'contentQuantity', 'contentTypeID', 'contentTypeName', 'cycleTime', 'expiryTime',
+                # 'installTime',  'lastLaunchTime', 'latitude', 'longitude', 'pinID', 'quantityPerCycle',
+                # 'schematicID', 'typeID', 'typeName'
                 #
                 # contentTypeIDs: P0 [1032,1033,1035], P1 [1042], P2 [1034], P3 [1040], P4 [1041]
                 # -- Gathered from invTypes table in SDE
@@ -260,8 +282,9 @@ else:
                     elif typeID in extractorTypes:
                         pinType = 'extractor'
                         if (pinExpireDate <= lastPinExpireDate) and (expireDate <= lastPinExpireDate):
-                            expireDate = pinExpireDate
+                            planetExpireDate = pinExpireDate
                             lastPinExpireDate = pinExpireDate
+
                     elif typeID in storageTypes:
                         pinType = 'storage'
                     elif typeID in factoryTypes:
@@ -269,18 +292,33 @@ else:
                     else:
                         pinType = 'unknown'
 
+                    # per pin loop ends
+
+                # per planet last var assignments
+
+                if planetExpireDate <= expireDate:
+                    expireDate = planetExpireDate
+                    planetExpiring = p.colonies[n].planetName
+
+                # per planet loop ends
+
+            # per char last var assignments
+
             if expireDate > datetime.now():
                 expireDateLocal = datetime.strftime(utc_to_local(expireDate),localDateFormat)
                 expireDelta = expireDate - datetime.utcnow()
                 timeToExpire = timedelta_to_string(expireDelta)
-                expiryWhenString = '%s' % (timeToExpire)
+                expiryWhenString = '%s [Next: %s]' % (timeToExpire,planetExpiring)
                 expiryString = 'Time Until Expiry: '
             else:
                 expireDateLocal = '### EXPIRED ON %s ###' % (datetime.strftime(utc_to_local(expireDate),shortDateFormat))
                 expireDelta = datetime.utcnow() - expireDate
                 timeSinceExpire = timedelta_to_string(expireDelta)
-                expiryWhenString = '%s --- EXPIRED! [%s]' % (timeSinceExpire,p.colonies[n].planetName)
+                expiryWhenString = '%s --- EXPIRED! [First: %s]' % (timeSinceExpire,planetExpiring)
                 expiryString = 'Time Since Expiry: '
+
+            # per char loop ends
+
         # END PLANET DATA LOOP
         # This runs if the character has zero planets
         else:
@@ -292,6 +330,7 @@ else:
             print '********************************'
             print '***   PLANETS AVAILABLE: %s   ***' % (planetsMax - planetCount)
             print '********************************'
+        print '--- LIST: %s' % (", ".join(planetNameList))
         print '--- Next Expiration:    %s' % (expireDateLocal)
         print '--- %s %s' % (expiryString,expiryWhenString)
 exit()
