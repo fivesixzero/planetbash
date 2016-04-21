@@ -299,6 +299,7 @@ else:
             expireDateLocal = '### None to Expire! ###'
             expiryString = '[you really should set up some planets]'
             expiryWhenString = ''
+            planetNameList = []
 
         if planetCount < planetsMax:
             print '********************************'
