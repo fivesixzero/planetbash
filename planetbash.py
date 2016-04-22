@@ -27,7 +27,6 @@ localDateFormat = '%a, %b %d at %I:%M %p %Z'
 shortDateFormat = '%a, %m/%d'
 # what file are we reading APIs from?
 API_CSV_FILENAME = '.eve_apis'
-# what does an API key look like?
 
 # shifts a datetime into local timezone
 def utc_to_local(utc_dt):
