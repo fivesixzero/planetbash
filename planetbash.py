@@ -300,6 +300,8 @@ else:
             expiryWhenString = ''
             planetNameList = []
 
+        if upgradesSkill = 5:
+            print '*** UPGRADES SKILL MAXED ***'
         if planetCount < planetsMax:
             print '********************************'
             print '***   PLANETS AVAILABLE: %s   ***' % (planetsMax - planetCount)
@@ -308,4 +310,3 @@ else:
         print '--- Next Expiration:    %s' % (expireDateLocal)
         print '--- %s %s' % (expiryString,expiryWhenString)
 exit()
-
