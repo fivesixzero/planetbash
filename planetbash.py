@@ -59,66 +59,45 @@ def printApiCSVExample():
     print ''
     print 'CSV format looks like this:'
     print ''
-    print 'keyid,verification,nickname'
-    print '1234567,QVxblnXnr5FLWlWlkx4San0XMeHLygYz5zr6LhFcqyZ6LUakD5npFAhbd0glegPe,main account'
-    print '1234568,o3YhqmeQtbITAZLkhadVha76i9d2LgXJsIkzUY1vdzW1Seqy4gg3NGIhWRcNqDCh,industry alts'
-    print '1234569,MYhnV6RlzhzMA31L9iqi5rg6Zl3TBhuisdX1vR6pX6hgmbIeOTN7nVsfm7ukeV6Y,goon spy'
+    print 'keyid,verification,nickname,type'
+    print '1234567,QVxblnXnr5FLWlWlkx4San0XMeHLygYz5zr6LhFcqyZ6LUakD5npFAhbd0glegPe,main account,char'
+    print '1234568,o3YhqmeQtbITAZLkhadVha76i9d2LgXJsIkzUY1vdzW1Seqy4gg3NGIhWRcNqDCh,industry alts,char'
+    print '1234569,MYhnV6RlzhzMA31L9iqi5rg6Zl3TBhuisdX1vR6pX6hgmbIeOTN7nVsfm7ukeV6Y,goon spy,char'
+    print ''
+    print 'Valid "type" entries are corp and char - items with other types will be ignored'
     print ''
 
-def getApiListFromCSV(filename):
-    try:
+def getApiListFromCSV(filename, type = 'char'):
+    try: # is our CSV gonna open right?
         apiCSV = open(filename, 'rb')
         apiList = list(csv.reader(apiCSV, delimiter=',', quotechar='\''))
         apiCSV.close()
-    except:
+    except: # If not, lets print an example of what it should look like then quit
         printApiCSVExample()
         sys.exit(2)
-
     # Check list sanity
     for i in range(len(apiList)):
         apiId = apiList[int(i)][0]
         apiVerification = apiList[int(i)][1]
         apiNickname = apiList[int(i)][2]
+        apiType = apiList[int(i)][3]
         if (i > 0) and (not (bool(re.match(r'[0-9]{7,}', apiId)) and bool(re.match(r'[0-9A-Za-z]{64}',apiVerification)))):
             printApiCSVExample()
             sys.exit(2)
+    # if we're looking for character keys, do this
+    if type == 'char':
+        apiListOutput = []
+        for i in range(len(apiList)):
+            if apiList[i][3] == 'char':
+                apiListOutput.append(apiList[i])
+    elif type == 'corp':
+        apiListOutput = []
+        for i in range(len(apiList)):
+            if apiList[i][3] == 'corp':
+                apiListOutput.append(apiList[i])
 
     # Found good CSV? Found list sane? Lets return that list!
-    return apiList
-
-def getTodoArg(args):
-    if (len(args) == 2) and (bool(re.match(r'[0-9]+', args[1]))):
-        return int(args[1])
-    else:
-        if len(args) > 2:
-            print '\nToo many arguments. Only provide a single integer, please'
-        else:
-            print '\nNo valid argument provided.'
-        return False
-
-def getApiFromList(apiList,todo):
-    # Is a safe todo item coming into us from arguments?
-    if todo and todo <= len(apiList) and todo is not 0:
-        apiPick = apiList[int(todo)]
-    else:
-        print '\nPlease pick one of the following keys or type "quit" to exit.\n'
-        for line in range(len(apiList)):
-            if line >= 1:
-                print '%s) %-15s [Key ID: %s]' % (line,apiList[line][2],apiList[line][0])
-        print ''
-        # input loop
-        while True:
-            todoInput = raw_input("Key to use: ")
-            if todoInput == 'quit' or todoInput == 'q': sys.exit(1)
-            elif (not todoInput.isdigit()) or todoInput == '0':
-                print "ERROR: Please enter a valid item number."
-            elif int(todoInput) not in range(len(apiList)):
-                print "ERROR: Sorry, %s isn't in our list." % (todoInput)
-            else:
-                break
-        apiPick = apiList[int(todoInput)]
-        # end input loop
-    return apiPick[0], apiPick[1], apiPick[2]
+    return apiListOutput
 
 def getPlanetDetails(p, charID):
     """INPUT: planet object
@@ -200,21 +179,16 @@ def getPlanetSkillDetails(c):
 
     return charSheet, planetsMax, planetsSkill, planetsSkillString, upgradesSkill, upgradesSkillString, galIndustrialSkill
 
-# Work out what to do based on our input arg and the CSV contents
-# todo: add some command-line switches... more/less char detail, more/less planet deets
+# start actual script here :)
 
-# for now we just care about TodoArg - in the future we'll add switches. :)
-#todo = getTodoArg(sys.argv)
-
-apiList = getApiListFromCSV(API_CSV_FILENAME)
+# get our char api list
+apiList = getApiListFromCSV(API_CSV_FILENAME,'char')
 
 # iterate through list, starting with #1
-for i in range(1,len(apiList)):
-
-    todo = i
+for i in range(len(apiList)):
 
     # Check input from CLI and assign
-    apiId, apiVerification, apiNickname = getApiFromList(getApiListFromCSV(API_CSV_FILENAME),todo)
+    apiId, apiVerification, apiNickname = apiList[i][0], apiList[i][1], apiList[i][2]
 
     # init Pew XML API wrapper with our fresh pick
     pew = Pew(apiId,apiVerification)
@@ -241,16 +215,6 @@ for i in range(1,len(apiList)):
             for n in range(len(p.colonies)):
 
                 planetNameList.append(p.colonies[n].planetName)
-
-                # PER PLANET PINS DATA:
-                # Each pin is a planet facility.
-                #
-                # 'contentQuantity', 'contentTypeID', 'contentTypeName', 'cycleTime', 'expiryTime',
-                # 'installTime',  'lastLaunchTime', 'latitude', 'longitude', 'pinID', 'quantityPerCycle',
-                # 'schematicID', 'typeID', 'typeName'
-                #
-                # contentTypeIDs: P0 [1032,1033,1035], P1 [1042], P2 [1034], P3 [1040], P4 [1041]
-                # -- Gathered from invTypes table in SDE
 
                 pp, pr, pl, planetExpireDate, expireDate = getPlanetDetails(p.colonies[n], c.characterID)
 
