@@ -20,19 +20,18 @@ import re
 
 # assign our local TZ based on this system's local TZ at runtime.
 local_tz = get_localzone()
-
 # static date string format vars
-apiDateFormat = '%Y-%m-%d %H:%M:%S'
+apiDateFormat   = '%Y-%m-%d %H:%M:%S'
 localDateFormat = '%a, %b %d at %I:%M %p %Z'
 shortDateFormat = '%a, %m/%d'
 # what file are we reading APIs from?
 API_CSV_FILENAME = '.eve_apis'
 # pin typeIDs
-commandTypes = [2254,2524,2525,2533,2534,2549,2550,2551]
+commandTypes   = [2254,2524,2525,2533,2534,2549,2550,2551]
 launchpadTypes = [2256,2542,2543,2544,2552,2555,2556,2557]
 extractorTypes = [2848,3060,3061,3062,3063,3064,3067,3068]
-storageTypes = [2257,2535,2536,2541,2558,2560,2561,2562]
-factoryTypes = [2469,2471,2473,2481,2483,2490,2492,2493,2470,2472,2474,2480,2484,2485,2491,2494,2475,2482]
+storageTypes   = [2257,2535,2536,2541,2558,2560,2561,2562]
+factoryTypes   = [2469,2471,2473,2481,2483,2490,2492,2493,2470,2472,2474,2480,2484,2485,2491,2494,2475,2482]
 # content typeIDs
 p0Types = [2073,2267,2268,2270,2272,2286,2287,2288,2305,2306,2307,2308,2309,2310,2311]
 p1Types = [2389,2390,2392,2393,2395,2396,2397,2398,2399,2400,2401,3645,3683,3779,9828]
@@ -186,48 +185,35 @@ apiList = getApiListFromCSV(API_CSV_FILENAME,'char')
 
 # iterate through list, starting with #1
 for i in range(len(apiList)):
-
+    #
     # Check input from CLI and assign
     apiId, apiVerification, apiNickname = apiList[i][0], apiList[i][1], apiList[i][2]
-
+    #
     # init Pew XML API wrapper with our fresh pick
     pew = Pew(apiId,apiVerification)
-
+    #
     charsPew = pew.acct_characters()
-
+    #
     for c in charsPew.characters:
         #
         print '{%s} %s (%s) [%s]' % (c.characterID, c.name, c.corporationName, c.allianceName)
         #
         charSheet, planetsMax, planetsSkill, planesSkillString, upgradesSkill, upgradesSkillString, galIndustrialSkill = getPlanetSkillDetails(c)
-
         p = pew.char_planetary_colonies(c.characterID)
-
         planetCount = len(p.colonies)
-
         # initial vars for expireDate and lastPinExpireDate to start fresh on each character
         expireDate = datetime.strptime("2285-09-09 11:11:11", apiDateFormat)
-
         if planetCount > 0:
-
             planetNameList = []
-
             for n in range(len(p.colonies)):
-
                 planetNameList.append(p.colonies[n].planetName)
-
                 pp, pr, pl, planetExpireDate, expireDate = getPlanetDetails(p.colonies[n], c.characterID)
-
                 # per planet last var assignments
-
                 if planetExpireDate <= expireDate:
                     expireDate = planetExpireDate
                     planetExpiring = p.colonies[n].planetName
-
                 # per planet loop ends
-
-            # per char last var assignments
-
+            # per char final var assignments
             if expireDate > datetime.now():
                 expireDateLocal = datetime.strftime(utc_to_local(expireDate),localDateFormat)
                 expireDelta = expireDate - datetime.utcnow()
@@ -240,9 +226,7 @@ for i in range(len(apiList)):
                 timeSinceExpire = timedelta_to_string(expireDelta)
                 expiryWhenString = '%s --- EXPIRED! [First: %s]' % (timeSinceExpire,planetExpiring)
                 expiryString = 'Time Since Expiry: '
-
             # per char loop ends
-
         # END PLANET DATA LOOP
         # This runs if the character has zero planets
         else:
