@@ -1,3 +1,5 @@
+_Update (2022/03/22): This project has been obsolete for many years now and its time to properly archive it, as it may be useful at some point in the future but certainly isn't at risk of receiving actual devleopment work._
+
 # planetbash.py
 
 Tired of losing track of your extractor timings? Don't want to click 10 times in existing character info apps to drill down to each character's PI info? This might be the tool for you! :D
